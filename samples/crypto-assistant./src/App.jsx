@@ -36,7 +36,7 @@ function App() {
         formData.append("image", image);
       }
 
-      const endpoint = isResearchMode ? "http://localhost:3000/search" : "http://localhost:3000/generate";
+      const endpoint = isResearchMode ? "/search" : "/generate";
       const response = await fetch(endpoint, {
         method: "POST",
         body: formData,

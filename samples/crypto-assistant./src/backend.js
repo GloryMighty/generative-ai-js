@@ -8,9 +8,17 @@ import { v4 as uuidv4 } from "uuid"; // For generating unique file names
 
 config(); // Load environment variables (e.g., API_KEY)
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
-app.use(cors()); // Allow frontend to connect
-app.use(express.json()); // Parse JSON requests
+app.use(cors());
+app.use(express.json());
+app.use(express.static(path.join(__dirname, '../build')));
+
 
 // Set up multer for file uploads
 const upload = multer({ dest: "uploads/" });
@@ -169,6 +177,10 @@ app.post("/search", upload.single("image"), async (req, res) => {
   }
 });
 
+// Serve static files from the build directory
+app.use(express.static(path.join(__dirname, '../build')));
+
+// Handle API routes
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
