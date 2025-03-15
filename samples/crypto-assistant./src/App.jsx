@@ -7,70 +7,96 @@ function App() {
   const [conversation, setConversation] = useState([]); // Array of { role, text }
   const [loading, setLoading] = useState(false); // Loading state
   const [streamedText, setStreamedText] = useState(""); // For streaming display
+  const [image, setImage] = useState(null); // Selected image file
+  const [isResearchMode, setIsResearchMode] = useState(false); // Research mode toggle
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     const trimmedPrompt = prompt.trim();
-    if (!trimmedPrompt) return;
-  
+    if (!trimmedPrompt) {
+      console.warn("Empty prompt");
+      return;
+    }
+
     setLoading(true);
     setStreamedText(""); // Clear previous response
     const currentPrompt = trimmedPrompt; // Store current prompt
     setPrompt(""); // Clear input after sending
-  
+
     try {
-      const response = await fetch("http://localhost:3000/generate", {
+      const formData = new FormData();
+      if (!sessionId) {
+        console.error("Session ID is missing");
+        throw new Error("Session ID is required");
+      }
+      formData.append("prompt", currentPrompt);
+      formData.append("sessionId", sessionId);
+      if (image) {
+        formData.append("image", image);
+      }
+
+      const endpoint = isResearchMode ? "http://localhost:3000/search" : "http://localhost:3000/generate";
+      const response = await fetch(endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: currentPrompt, sessionId }),
+        body: formData,
       });
-  
-      if (!response.ok) throw new Error("Network response was not ok");
-      
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Network response was not ok");
+      }
+
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-  
+
       // Add user message to conversation only when we start receiving a response
-      setConversation(prev => [...prev, { role: "user", text: currentPrompt }]);
-      
+      setConversation((prev) => [...prev, { role: "user", text: currentPrompt }]);
+
       let accumulatedText = "";
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
-  
+
         const chunkText = decoder.decode(value);
-        const lines = chunkText.split('\n').filter(line => line.trim());
-        
+        const lines = chunkText.split("\n").filter((line) => line.trim());
+
         for (const line of lines) {
           try {
-            const { text } = JSON.parse(line);
-            if (text) {
-              accumulatedText += text;
+            const parsedData = JSON.parse(line);
+            // Handle both direct text and nested text property
+            const responseText = typeof parsedData === 'string' ? parsedData : parsedData.text || parsedData.content || '';
+            if (responseText) {
+              accumulatedText += responseText;
               setStreamedText(accumulatedText);
             }
           } catch (e) {
-            console.error('Error parsing chunk:', e);
+            // If the line is not valid JSON, try to use it directly
+            if (line.trim()) {
+              accumulatedText += line.trim();
+              setStreamedText(accumulatedText);
+            }
+            console.debug("Parsing chunk:", e);
           }
         }
       }
-  
+
       // Add final response to conversation
       if (accumulatedText.trim()) {
-        setConversation(prev => [...prev, { role: "assistant", text: accumulatedText }]);
+        setConversation((prev) => [...prev, { role: "assistant", text: accumulatedText }]);
       }
     } catch (error) {
       console.error("Error:", error);
-      // Add user message and error response to conversation
-      setConversation(prev => [
+      setConversation((prev) => [
         ...prev,
         { role: "user", text: currentPrompt },
-        { role: "assistant", text: "Sorry, something went wrong." }
+        { role: "assistant", text: "Sorry, something went wrong." },
       ]);
       setStreamedText("Sorry, something went wrong.");
     } finally {
       setLoading(false);
       setStreamedText(""); // Clear streamed text after completion
+      setImage(null); // Clear image after submission
     }
   };
 
@@ -89,10 +115,10 @@ function App() {
         backgroundColor: "#ffffff",
         borderRadius: "12px",
         boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-        height: "500px",
+        height: "600px",
         display: "flex",
         flexDirection: "column",
-        overflow: "hidden"
+        overflow: "hidden",
       }}>
         <div style={{
           flex: 1,
@@ -100,7 +126,7 @@ function App() {
           padding: "20px",
           display: "flex",
           flexDirection: "column",
-          gap: "16px"
+          gap: "16px",
         }}>
           {conversation.length === 0 && !loading && (
             <div style={{
@@ -109,7 +135,7 @@ function App() {
               justifyContent: "center",
               height: "100%",
               color: "#94a3b8",
-              fontSize: "1.1rem"
+              fontSize: "1.1rem",
             }}>
               Ask me anything about cryptocurrency!
             </div>
@@ -127,7 +153,7 @@ function App() {
                     borderRadius: msg.role === "user" ? "12px 12px 0 12px" : "12px 12px 12px 0",
                     maxWidth: "80%",
                     wordBreak: "break-word",
-                    marginBottom: "8px"
+                    marginBottom: "8px",
                   }}>
                     {msg.text}
                   </div>
@@ -145,7 +171,7 @@ function App() {
                         cursor: "pointer",
                         transition: "background-color 0.2s",
                         marginTop: "0",
-                        marginBottom: "16px"
+                        marginBottom: "16px",
                       }}
                     >
                       Read Aloud
@@ -163,7 +189,7 @@ function App() {
                   maxWidth: "80%",
                   wordBreak: "break-word",
                   opacity: 0.7,
-                  transition: "opacity 0.2s"
+                  transition: "opacity 0.2s",
                 }}>
                   {streamedText}
                   <div style={{ marginTop: "8px", color: "#94a3b8" }}>Generating...</div>
@@ -172,13 +198,40 @@ function App() {
             </>
           )}
         </div>
-        <form onSubmit={handleSubmit} style={{
-          borderTop: "1px solid #e2e8f0",
-          padding: "16px",
-          backgroundColor: "#ffffff",
-          display: "flex",
-          gap: "12px"
-        }}>
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            borderTop: "1px solid #e2e8f0",
+            padding: "16px",
+            backgroundColor: "#ffffff",
+            display: "flex",
+            gap: "12px",
+            alignItems: "center",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <label style={{ fontSize: "0.875rem", color: "#475569" }}>
+              Research Mode
+              <input
+                type="checkbox"
+                checked={isResearchMode}
+                onChange={(e) => setIsResearchMode(e.target.checked)}
+                style={{ marginLeft: "4px" }}
+              />
+            </label>
+          </div>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImage(e.target.files[0])}
+            style={{
+              padding: "12px",
+              borderRadius: "6px",
+              border: "1px solid #e2e8f0",
+              fontSize: "1rem",
+              backgroundColor: "#f8fafc",
+            }}
+          />
           <input
             type="text"
             value={prompt}
@@ -190,7 +243,7 @@ function App() {
               borderRadius: "6px",
               border: "1px solid #e2e8f0",
               fontSize: "1rem",
-              backgroundColor: "#f8fafc"
+              backgroundColor: "#f8fafc",
             }}
             disabled={loading}
           />
@@ -206,7 +259,7 @@ function App() {
               fontSize: "1rem",
               cursor: loading ? "not-allowed" : "pointer",
               transition: "background-color 0.2s",
-              whiteSpace: "nowrap"
+              whiteSpace: "nowrap",
             }}
           >
             {loading ? "Generating..." : "Send"}

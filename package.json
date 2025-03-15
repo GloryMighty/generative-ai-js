@@ -90,6 +90,8 @@
   },
   "homepage": "https://github.com/google/generative-ai-js#readme",
   "dependencies": {
+    "concurrently": "^9.1.2",
+    "multer": "^1.4.5-lts.1",
     "uuid": "^11.1.0"
   }
 }
