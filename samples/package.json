@@ -1,7 +1,8 @@
 {
   "type": "module",
   "dependencies": {
-    "@google/generative-ai": "*"
+    "@google/generative-ai": "*",
+    "dotenv": "^16.4.7"
   },
   "license": "Apache-2.0",
   "engines": {

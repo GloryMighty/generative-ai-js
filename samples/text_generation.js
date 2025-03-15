@@ -1,3 +1,6 @@
+import { config } from "dotenv";
+config();
+
 /**
  * @license
  * Copyright 2024 Google LLC
@@ -29,7 +32,7 @@ async function textGenTextOnlyPrompt() {
   // Make sure to include these imports:
   // import { GoogleGenerativeAI } from "@google/generative-ai";
   const genAI = new GoogleGenerativeAI(process.env.API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   const prompt = "Write a story about a magic backpack.";
 
@@ -43,7 +46,7 @@ async function textGenTextOnlyPromptStreaming() {
   // Make sure to include these imports:
   // import { GoogleGenerativeAI } from "@google/generative-ai";
   const genAI = new GoogleGenerativeAI(process.env.API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   const prompt = "Write a story about a magic backpack.";
 
@@ -62,7 +65,7 @@ async function textGenMultimodalOneImagePrompt() {
   // Make sure to include these imports:
   // import { GoogleGenerativeAI } from "@google/generative-ai";
   const genAI = new GoogleGenerativeAI(process.env.API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   function fileToGenerativePart(path, mimeType) {
     return {
@@ -90,7 +93,7 @@ async function textGenMultimodalOneImagePromptStreaming() {
   // Make sure to include these imports:
   // import { GoogleGenerativeAI } from "@google/generative-ai";
   const genAI = new GoogleGenerativeAI(process.env.API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   function fileToGenerativePart(path, mimeType) {
     return {
@@ -123,7 +126,7 @@ async function textGenMultimodalMultiImagePrompt() {
   // Make sure to include these imports:
   // import { GoogleGenerativeAI } from "@google/generative-ai";
   const genAI = new GoogleGenerativeAI(process.env.API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   function fileToGenerativePart(path, mimeType) {
     return {
@@ -155,7 +158,7 @@ async function textGenMultimodalMultiImagePromptStreaming() {
   // Make sure to include these imports:
   // import { GoogleGenerativeAI } from "@google/generative-ai";
   const genAI = new GoogleGenerativeAI(process.env.API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   function fileToGenerativePart(path, mimeType) {
     return {
@@ -192,7 +195,7 @@ async function textGenMultimodalAudio() {
   // Make sure to include these imports:
   // import { GoogleGenerativeAI } from "@google/generative-ai";
   const genAI = new GoogleGenerativeAI(process.env.API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   function fileToGenerativePart(path, mimeType) {
     return {
@@ -221,7 +224,7 @@ async function textGenMultimodalVideoPrompt() {
   // import { GoogleGenerativeAI } from "@google/generative-ai";
   // import { GoogleAIFileManager, FileState } from "@google/generative-ai/server";
   const genAI = new GoogleGenerativeAI(process.env.API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   const fileManager = new GoogleAIFileManager(process.env.API_KEY);
 
@@ -263,7 +266,7 @@ async function textGenMultimodalVideoPromptStreaming() {
   // import { GoogleGenerativeAI } from "@google/generative-ai";
   // import { GoogleAIFileManager, FileState } from "@google/generative-ai/server";
   const genAI = new GoogleGenerativeAI(process.env.API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   const fileManager = new GoogleAIFileManager(process.env.API_KEY);
 
