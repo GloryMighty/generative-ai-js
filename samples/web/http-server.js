@@ -1,3 +1,4 @@
+
 /**
  * @license
  * Copyright 2024 Google LLC
@@ -19,16 +20,20 @@ import fs from "fs";
 import http from "http";
 import path from "path";
 import url from "url";
+import dotenv from "dotenv";
 
 // Local port for http server to listen on
 const PORT = 9000;
+
+// Load environment variables from .env file
+dotenv.config();
 
 // Get your API key from https://makersuite.google.com/app/apikey
 // Access your API key as an environment variable
 const API_KEY = process.env.API_KEY;
 
 if (!API_KEY) {
-  throw new Error("API_KEY environment variable not set");
+  throw new Error("API_KEY environment variable not set. Please set it in your .env file.");
 }
 
 // Maps file extention to MIME types

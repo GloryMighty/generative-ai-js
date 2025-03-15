@@ -60,10 +60,10 @@
           event.preventDefault();
 
           if (!chat) {
-            const model = await getGenerativeModel({ model: "gemini-1.5-flash" });
+            const model = await getGenerativeModel({ model: "gemini-2.0-flash" });
             chat = model.startChat({
               generationConfig: {
-                maxOutputTokens: 100,
+                maxOutputTokens: 4000,
               },
             });
           }
